@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: inventory-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-inventory_db}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-inventory_db}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  core:
+    build:
+      context: ./core
+      dockerfile: Dockerfile
+    container_name: inventory-core
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8081}:8080"
+    environment:
+      PORT: "8080"
+      GIN_MODE: ${GIN_MODE:-release}
+      DATABASE_URL: "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-inventory_db}?sslmode=disable"
+      EXPIRY_INTERVAL: ${EXPIRY_INTERVAL:-30s}
+      RESERVATION_EXPIRY_MINUTES: ${RESERVATION_EXPIRY_MINUTES:-5}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
