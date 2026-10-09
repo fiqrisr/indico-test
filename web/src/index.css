@@ -3,6 +3,9 @@
 @plugin "tailwindcss-animate";
 
 @theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
@@ -42,7 +45,9 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
+  --animate-pulse-glow: pulseGlow 2.5s ease-in-out infinite;
+  --animate-radar-sweep: radarSweep 3s linear infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
 
   @keyframes accordion-down {
     from {
@@ -63,88 +68,104 @@
   @keyframes pulseGlow {
     0%, 100% {
       opacity: 1;
-      transform: scale(1);
+      filter: drop-shadow(0 0 12px hsl(var(--primary) / 0.35));
     }
     50% {
-      opacity: 0.8;
-      transform: scale(1.02);
+      opacity: 0.85;
+      filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.15));
+    }
+  }
+  @keyframes radarSweep {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
     }
   }
 }
 
 @layer base {
   :root {
-    --background: 220 20% 98%;
-    --foreground: 224 71% 4%;
+    --background: 215 25% 97%;
+    --foreground: 224 45% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
+    --card-foreground: 224 45% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
+    --popover-foreground: 224 45% 12%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 226 72% 52%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 9% 46%;
+    --secondary: 216 22% 93%;
+    --secondary-foreground: 224 35% 24%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 216 20% 93%;
+    --muted-foreground: 220 15% 44%;
 
-    --accent: 220 14% 96%;
-    --accent-foreground: 224 71% 4%;
+    --accent: 226 65% 94%;
+    --accent-foreground: 226 72% 38%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 76% 52%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --success: 156 72% 38%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 224 71% 4%;
+    --warning: 38 94% 48%;
+    --warning-foreground: 38 94% 15%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    --border: 216 22% 88%;
+    --input: 216 22% 88%;
+    --ring: 226 72% 52%;
 
-    --radius: 0.65rem;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
+    --background: 224 38% 7%;
+    --foreground: 214 28% 95%;
 
-    --card: 224 71% 7%;
-    --card-foreground: 213 31% 91%;
+    --card: 224 32% 10.5%;
+    --card-foreground: 214 28% 95%;
 
-    --popover: 224 71% 7%;
-    --popover-foreground: 213 31% 91%;
+    --popover: 224 32% 10.5%;
+    --popover-foreground: 214 28% 95%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 224 71% 4%;
+    --primary: 226 80% 64%;
+    --primary-foreground: 224 38% 7%;
 
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 224 24% 16%;
+    --secondary-foreground: 214 20% 88%;
 
-    --muted: 215 28% 17%;
-    --muted-foreground: 218 11% 65%;
+    --muted: 224 24% 15%;
+    --muted-foreground: 218 16% 62%;
 
-    --accent: 215 28% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 226 35% 18%;
+    --accent-foreground: 214 28% 95%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 52%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --success: 156 68% 44%;
+    --success-foreground: 224 38% 7%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 224 71% 4%;
+    --warning: 38 94% 52%;
+    --warning-foreground: 224 38% 7%;
 
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-    --ring: 217 91% 60%;
+    --border: 224 22% 17%;
+    --input: 224 22% 17%;
+    --ring: 226 80% 64%;
   }
 }
 
@@ -152,8 +173,32 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary min-h-screen;
-    font-feature-settings: "rlig" 1, "calt" 1;
+  html {
+    scroll-behavior: smooth;
   }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary min-h-screen font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1, "cv02" 1, "cv03" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
+    font-feature-settings: "zero" 1, "ss01" 1;
+  }
+}
+
+/* Micro-dot blueprint background texture */
+.bg-grid-pattern {
+  background-size: 24px 24px;
+  background-image: radial-gradient(
+    circle,
+    currentColor 1px,
+    transparent 1px
+  );
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }

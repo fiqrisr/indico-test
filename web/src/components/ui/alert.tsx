@@ -3,17 +3,17 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7',
+  'relative w-full rounded-xl border px-4 py-3 text-sm shadow-2xs transition-all [&>svg+div]:translate-y-[-2px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-3.5 [&>svg]:text-foreground [&>svg~*]:pl-7',
   {
     variants: {
       variant: {
-        default: 'bg-background text-foreground',
+        default: 'bg-card text-foreground border-border/80',
         destructive:
-          'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive bg-destructive/10',
+          'border-destructive/30 text-destructive dark:text-red-300 bg-destructive/10 [&>svg]:text-destructive',
         warning:
-          'border-warning/50 text-warning dark:border-warning [&>svg]:text-warning bg-warning/10',
+          'border-amber-500/30 text-amber-800 dark:text-amber-300 bg-amber-500/10 [&>svg]:text-amber-600 dark:[&>svg]:text-amber-400',
         success:
-          'border-success/50 text-success dark:border-success [&>svg]:text-success bg-success/10',
+          'border-emerald-500/30 text-emerald-800 dark:text-emerald-300 bg-emerald-500/10 [&>svg]:text-emerald-600 dark:[&>svg]:text-emerald-400',
       },
     },
     defaultVariants: {
@@ -41,7 +41,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
-    className={cn('mb-1 font-medium leading-none tracking-tight', className)}
+    className={cn('mb-1 font-semibold leading-snug tracking-tight text-foreground', className)}
     {...props}
   />
 ))
@@ -53,7 +53,7 @@ const AlertDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('text-sm [&_p]:leading-relaxed', className)}
+    className={cn('text-xs sm:text-sm text-muted-foreground [&_p]:leading-relaxed', className)}
     {...props}
   />
 ))
