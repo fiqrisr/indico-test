@@ -2,11 +2,8 @@ import { useState } from 'react'
 import {
   Clock,
   Code2,
-  FileCode,
   History,
-  Layers,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -16,13 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type {
   ActiveReservationHold,
   ReserveStockResponse,
 } from '../types/reservation-types'
 import { ConfirmationCard } from './confirmation-card'
-import { ReservationFormRHF } from './reservation-form-rhf'
 import { ReservationFormTanStack } from './reservation-form-tanstack'
 
 interface ReservationPanelProps {
@@ -125,53 +120,18 @@ export function ReservationPanel({
           </CardHeader>
 
           <CardContent>
-            {/* Form Selection Tabs: TanStack Form vs React Hook Form */}
-            <Tabs defaultValue="tanstack" className="w-full">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-border/50">
-                <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                  <Layers className="h-3.5 w-3.5 text-primary" />
-                  Form Engine Architecture:
-                </span>
-                <TabsList className="grid grid-cols-2 h-8.5 w-full sm:w-[280px]">
-                  <TabsTrigger value="tanstack" className="text-xs px-2.5 gap-1.5">
-                    <Sparkles className="h-3 w-3" />
-                    TanStack Form
-                  </TabsTrigger>
-                  <TabsTrigger value="rhf" className="text-xs px-2.5 gap-1.5">
-                    <FileCode className="h-3 w-3" />
-                    React Hook Form
-                  </TabsTrigger>
-                </TabsList>
+            <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
+                <Code2 className="h-3.5 w-3.5 text-primary" />
+                <span>Reactive field-level validation via <code className="font-mono text-foreground font-semibold">@tanstack/react-form</code></span>
               </div>
-
-              <TabsContent value="tanstack" className="mt-0">
-                <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
-                    <Code2 className="h-3.5 w-3.5 text-primary" />
-                    <span>Reactive field-level validation via <code className="font-mono text-foreground font-semibold">@tanstack/react-form</code></span>
-                  </div>
-                  <ReservationFormTanStack
-                    itemId={itemId}
-                    availableStock={availableStock}
-                    onSuccess={handleReservationSuccess}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="rhf" className="mt-0">
-                <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
-                    <Code2 className="h-3.5 w-3.5 text-primary" />
-                    <span>Schema-driven validation via <code className="font-mono text-foreground font-semibold">react-hook-form</code> + <code className="font-mono text-foreground font-semibold">zod</code></span>
-                  </div>
-                  <ReservationFormRHF
-                    itemId={itemId}
-                    availableStock={availableStock}
-                    onSuccess={handleReservationSuccess}
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+              <ReservationFormTanStack
+                key={itemId}
+                itemId={itemId}
+                availableStock={availableStock}
+                onSuccess={handleReservationSuccess}
+              />
+            </div>
           </CardContent>
         </Card>
       )}

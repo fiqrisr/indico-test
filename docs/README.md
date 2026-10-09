@@ -43,7 +43,7 @@ The technical specification of the high-throughput inventory reservation web das
 - **Section 2**: Tech Stack (React 19, Vite 8, Tailwind CSS v4, TanStack Query v5)
 - **Section 3**: Capability Map & Directory Layout
 - **Section 4**: API Contracts, Polling Intervals, and Real-Time State Invalidation
-- **Section 5**: Form Engineering (TanStack Form + React Hook Form implementations)
+- **Section 5**: Form Engineering (TanStack Form Implementation)
 - **Section 6**: Development & Production Build Commands
 - **Section 7**: Testing & Verification Strategy
 

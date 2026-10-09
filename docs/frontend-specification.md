@@ -5,7 +5,7 @@
 Deliver a high-reliability, real-time web dashboard for the High-Throughput Inventory Reservation System.
 The application connects to the Go + Gin core microservice and PostgreSQL database to provide:
 1. **Live Inventory Tracking**: Real-time polling and visualization of `total_stock`, `reserved_stock`, and `available_stock`.
-2. **High-Concurrency Reservation Submission**: Robust form submission using `@tanstack/react-form` and `react-hook-form` with field-level validation and instantaneous error feedback.
+2. **High-Concurrency Reservation Submission**: Robust form submission using `@tanstack/react-form` with reactive field-level validation and instantaneous error feedback.
 3. **Dual-Phase Hold & Confirmation Workflow**: Dynamic 5-minute countdown timer calculated against the backend's `expires_at` timestamp with automatic expiration handling, button lockout, and confirmation execution.
 4. **Resilient Feedback & Error Handling**: Toast and inline alerts handling concurrency conflicts (HTTP 409 Insufficient Stock), expiration events (HTTP 400), and network degradations.
 
@@ -18,9 +18,7 @@ The web application must follow a strict **modular architecture** where business
 - **Runtime & Package Manager**: Node.js v22+, `pnpm` v9+
 - **Framework & Bundler**: React 19, Vite 8 (TypeScript)
 - **State Management & Data Fetching**: `@tanstack/react-query` v5
-- **Form Libraries**:
-  - `@tanstack/react-form` (Primary high-performance reactive reservation form)
-  - `react-hook-form` + `@hookform/resolvers` + `zod` (Alternative modular form & configuration)
+- **Form Management**: `@tanstack/react-form` (High-performance reactive form state & field validation)
 - **UI Framework & Styling**:
   - Tailwind CSS v4 (integrated via `@tailwindcss/vite` and CSS-first `@theme` tokens)
   - Shadcn UI (using Radix Primitives & Lucide React)
@@ -69,8 +67,7 @@ web/
 │   │   │   ├── components/
 │   │   │   │   ├── countdown-timer.tsx   # Precision 5-minute countdown timer with progress
 │   │   │   │   ├── reservation-form-tanstack.tsx # TanStack Form implementation
-│   │   │   │   ├── reservation-form-rhf.tsx      # React Hook Form implementation
-│   │   │   │   ├── reservation-panel.tsx         # Unified container with form tab selection
+│   │   │   │   ├── reservation-panel.tsx         # Unified container with reservation form and audit trail
 │   │   │   │   └── confirmation-card.tsx         # Active hold card with confirm button
 │   │   │   ├── hooks/
 │   │   │   │   ├── use-countdown.ts              # Drift-resistant interval countdown hook
@@ -125,16 +122,14 @@ web/
 
 ---
 
-## 5. Form Engineering (TanStack Form + React Hook Form)
+## 5. Form Engineering (TanStack React Form)
 
-To fulfill both requirements elegantly and showcase modern state management patterns:
-1. **`reservation-form-tanstack.tsx`**: Uses `@tanstack/react-form` for zero-re-render reactive field state, deep TypeScript safety, and field validation.
-2. **`reservation-form-rhf.tsx`**: Uses `react-hook-form` + `zod` for declarative schema validation integrated with Shadcn form components.
-3. Both forms share the exact same underlying validation schema:
-   - `user_id`: required, trimmed string (min 2 chars).
+The reservation submission uses `@tanstack/react-form` for zero-re-render reactive field state, deep TypeScript safety, and field-level validation:
+1. **`reservation-form-tanstack.tsx`**: Uses `@tanstack/react-form` (`useForm`) with reactive field validation handlers on `onChange`.
+2. **Validation Rules**:
+   - `user_id`: required, trimmed string (min 2 characters).
    - `quantity`: positive integer >= 1, capped at available stock.
-4. The user can switch between the two forms via a subtle tab control (`TanStack Form` vs `React Hook Form`), demonstrating both implementations in action.
-
+3. **State Integration**: Disables submission during active mutations or when available stock is 0; integrates with Sonner toasts for conflict and success feedback.
 ---
 
 ## 6. Commands
