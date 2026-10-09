@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
-	"github.com/fiqrisr/inventory-system/core/internal/service"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/service"
 )
 
 func TestInventoryService_InputValidation(t *testing.T) {

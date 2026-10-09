@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fiqrisr/inventory-system/core/internal/repository"
+	"github.com/fiqrisr/indico-test/core/internal/repository"
 )
 
 type ExpiryWorker struct {

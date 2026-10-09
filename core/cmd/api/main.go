@@ -11,17 +11,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fiqrisr/inventory-system/core/internal/config"
-	"github.com/fiqrisr/inventory-system/core/internal/database"
-	"github.com/fiqrisr/inventory-system/core/internal/handler"
-	"github.com/fiqrisr/inventory-system/core/internal/repository"
-	"github.com/fiqrisr/inventory-system/core/internal/service"
-	"github.com/fiqrisr/inventory-system/core/internal/worker"
+	"github.com/fiqrisr/indico-test/core/internal/config"
+	"github.com/fiqrisr/indico-test/core/internal/database"
+	"github.com/fiqrisr/indico-test/core/internal/handler"
+	"github.com/fiqrisr/indico-test/core/internal/repository"
+	"github.com/fiqrisr/indico-test/core/internal/service"
+	"github.com/fiqrisr/indico-test/core/internal/worker"
 )
 
 func main() {
 	cfg := config.Load()
-	log.Printf("Starting inventory service on port %s...", cfg.Port)
+	log.Printf("Starting indico-test core service on port %s...", cfg.Port)
 
 	db, err := database.Connect(cfg.DatabaseURL)
 	if err != nil {

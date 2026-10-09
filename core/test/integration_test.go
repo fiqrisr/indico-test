@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/fiqrisr/inventory-system/core/internal/database"
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
-	"github.com/fiqrisr/inventory-system/core/internal/repository"
-	"github.com/fiqrisr/inventory-system/core/internal/service"
+	"github.com/fiqrisr/indico-test/core/internal/database"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/repository"
+	"github.com/fiqrisr/indico-test/core/internal/service"
 )
 
 func getTestDB(t *testing.T) *sql.DB {

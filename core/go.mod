@@ -1,4 +1,4 @@
-module github.com/fiqrisr/inventory-system/core
+module github.com/fiqrisr/indico-test/core
 
 go 1.25.0
 

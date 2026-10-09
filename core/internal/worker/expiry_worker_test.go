@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
-	"github.com/fiqrisr/inventory-system/core/internal/worker"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/worker"
 )
 
 type mockWorkerRepo struct {

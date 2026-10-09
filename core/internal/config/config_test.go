@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/fiqrisr/inventory-system/core/internal/config"
+	"github.com/fiqrisr/indico-test/core/internal/config"
 )
 
 func TestLoad_Defaults(t *testing.T) {

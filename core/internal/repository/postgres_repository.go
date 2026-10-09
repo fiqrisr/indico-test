@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
 )
 
 type PostgresRepository struct {

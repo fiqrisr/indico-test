@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
-	"github.com/fiqrisr/inventory-system/core/internal/repository"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/repository"
 )
 
 type InventoryService interface {

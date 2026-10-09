@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
 )
 
 // InventoryRepository abstracts database operations for inventory and reservations.

@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/fiqrisr/inventory-system/core/internal/domain"
-	"github.com/fiqrisr/inventory-system/core/internal/service"
+	"github.com/fiqrisr/indico-test/core/internal/domain"
+	"github.com/fiqrisr/indico-test/core/internal/service"
 )
 
 type InventoryHandler struct {
