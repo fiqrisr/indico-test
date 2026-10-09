@@ -1,4 +1,4 @@
--- Initialize PostgreSQL Schema for High-Throughput Inventory Reservation System
+-- Initialize PostgreSQL Schema for indico-test Core Service
 
 CREATE TABLE IF NOT EXISTS inventory (
     item_id VARCHAR(255) PRIMARY KEY,
