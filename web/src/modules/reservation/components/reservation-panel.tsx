@@ -1,7 +1,21 @@
 import { useState } from 'react'
-import { History, Layers, ShieldCheck, Sparkles } from 'lucide-react'
+import {
+  Clock,
+  Code2,
+  FileCode,
+  History,
+  Layers,
+  ShieldCheck,
+  Sparkles,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type {
   ActiveReservationHold,
@@ -84,21 +98,28 @@ export function ReservationPanel({
           onReset={handleReset}
         />
       ) : (
-        <Card className="shadow-md border-border/80">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+        <Card className="border-border/80 bg-card/90 shadow-sm relative overflow-hidden backdrop-blur-xs">
+          {/* Top highlight bar */}
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary/80 via-primary to-amber-500/80" />
+
+          <CardHeader className="pb-3.5 pt-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div>
-                <CardTitle className="text-xl font-bold flex items-center gap-2">
+                <CardTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                   Flash-Sale Checkout Hold
                 </CardTitle>
                 <CardDescription className="mt-1">
-                  Pessimistic row-level lock reservation pipeline
+                  Acquire a temporary two-phase row lock before final payment confirmation
                 </CardDescription>
               </div>
 
-              <Badge variant="outline" className="text-xs">
-                5-Min Hold Window
+              <Badge
+                variant="outline"
+                className="self-start sm:self-auto text-xs font-mono py-0.5 px-2 bg-muted/50 border-primary/30 text-primary gap-1.5"
+              >
+                <Clock className="h-3 w-3" />
+                5-Min Lease Hold
               </Badge>
             </div>
           </CardHeader>
@@ -106,26 +127,28 @@ export function ReservationPanel({
           <CardContent>
             {/* Form Selection Tabs: TanStack Form vs React Hook Form */}
             <Tabs defaultValue="tanstack" className="w-full">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3.5 pb-2.5 border-b border-border/50">
                 <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                  <Layers className="h-3.5 w-3.5" />
-                  Form Architecture Engine:
+                  <Layers className="h-3.5 w-3.5 text-primary" />
+                  Form Engine Architecture:
                 </span>
-                <TabsList className="grid grid-cols-2 h-8">
-                  <TabsTrigger value="tanstack" className="text-xs px-2.5">
+                <TabsList className="grid grid-cols-2 h-8.5 w-full sm:w-[280px]">
+                  <TabsTrigger value="tanstack" className="text-xs px-2.5 gap-1.5">
+                    <Sparkles className="h-3 w-3" />
                     TanStack Form
                   </TabsTrigger>
-                  <TabsTrigger value="rhf" className="text-xs px-2.5">
+                  <TabsTrigger value="rhf" className="text-xs px-2.5 gap-1.5">
+                    <FileCode className="h-3 w-3" />
                     React Hook Form
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               <TabsContent value="tanstack" className="mt-0">
-                <div className="rounded-lg border bg-muted/20 p-4 mb-2">
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-2">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    <span>Reactive field-level validation via <code>@tanstack/react-form</code></span>
+                    <Code2 className="h-3.5 w-3.5 text-primary" />
+                    <span>Reactive field-level validation via <code className="font-mono text-foreground font-semibold">@tanstack/react-form</code></span>
                   </div>
                   <ReservationFormTanStack
                     itemId={itemId}
@@ -136,10 +159,10 @@ export function ReservationPanel({
               </TabsContent>
 
               <TabsContent value="rhf" className="mt-0">
-                <div className="rounded-lg border bg-muted/20 p-4 mb-2">
+                <div className="rounded-xl border border-border/60 bg-muted/20 p-4 mb-2">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 font-medium">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    <span>Schema-driven validation via <code>react-hook-form</code> + <code>zod</code></span>
+                    <Code2 className="h-3.5 w-3.5 text-primary" />
+                    <span>Schema-driven validation via <code className="font-mono text-foreground font-semibold">react-hook-form</code> + <code className="font-mono text-foreground font-semibold">zod</code></span>
                   </div>
                   <ReservationFormRHF
                     itemId={itemId}
@@ -155,13 +178,16 @@ export function ReservationPanel({
 
       {/* Mini Session History */}
       {holdHistory.length > 0 && (
-        <Card className="border border-border/60 bg-card/60">
+        <Card className="border border-border/70 bg-card/60 shadow-2xs backdrop-blur-xs">
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <History className="h-3.5 w-3.5" />
-                <span>Session Holds Log ({holdHistory.length})</span>
+              <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                <History className="h-3.5 w-3.5 text-primary" />
+                <span>Session Hold Audit Trail</span>
               </div>
+              <span className="font-mono text-[11px] text-muted-foreground">
+                {holdHistory.length} {holdHistory.length === 1 ? 'event' : 'events'} recorded
+              </span>
             </div>
           </CardHeader>
           <CardContent className="px-4 pb-3 pt-0">
@@ -169,15 +195,15 @@ export function ReservationPanel({
               {holdHistory.map((item) => (
                 <div
                   key={item.reservationId}
-                  className="py-2 flex items-center justify-between"
+                  className="py-2.5 flex items-center justify-between gap-2"
                 >
-                  <div className="flex items-center gap-2 font-mono truncate">
-                    <span className="text-muted-foreground">
+                  <div className="flex items-center gap-2 font-mono truncate min-w-0">
+                    <span className="text-muted-foreground/70 shrink-0">
                       {item.reservationId.slice(0, 8)}
                     </span>
-                    <span className="font-semibold">{item.itemId}</span>
-                    <span className="text-muted-foreground">
-                      ({item.quantity} units)
+                    <span className="font-bold text-foreground truncate">{item.itemId}</span>
+                    <span className="text-muted-foreground shrink-0 tabular-nums">
+                      ({item.quantity} {item.quantity === 1 ? 'unit' : 'units'})
                     </span>
                   </div>
                   <Badge
@@ -188,7 +214,7 @@ export function ReservationPanel({
                         ? 'destructive'
                         : 'secondary'
                     }
-                    className="text-[10px] py-0 px-1.5"
+                    className="text-[10px] font-mono py-0 px-1.5 uppercase tracking-wider shrink-0"
                   >
                     {item.status}
                   </Badge>

@@ -1,5 +1,14 @@
 import { useForm } from '@tanstack/react-form'
-import { AlertCircle, ArrowRight, Loader2, Minus, Plus, ShoppingBag, User } from 'lucide-react'
+import {
+  AlertCircle,
+  ArrowRight,
+  Loader2,
+  Lock,
+  Minus,
+  Plus,
+  ShoppingBag,
+  User,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -27,14 +36,21 @@ export function ReservationFormTanStack({
       quantity: 1,
     },
     onSubmit: async ({ value }) => {
+      if (availableStock > 0 && value.quantity > availableStock) {
+        toast.error('Validation Error', {
+          description: `Requested quantity exceeds available stock (${availableStock}).`,
+        })
+        return
+      }
+
       try {
         const result = await reserveMutation.mutateAsync({
           user_id: value.userId.trim(),
           item_id: itemId,
           quantity: value.quantity,
         })
-        toast.success('Hold Confirmed! 5-minute checkout window active.', {
-          description: `Reserved ${value.quantity} unit(s) of ${itemId}.`,
+        toast.success('Pessimistic Hold Granted!', {
+          description: `Reserved ${value.quantity} unit(s) of ${itemId}. 5-minute checkout window active.`,
         })
         onSuccess(result, value.userId.trim())
       } catch (err: unknown) {
@@ -79,21 +95,22 @@ export function ReservationFormTanStack({
           const errorMsg = field.state.meta.errors?.[0]
           return (
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-1">
                 <Label
                   htmlFor="tanstack-userId"
                   className="text-xs font-semibold flex items-center gap-1.5 text-foreground"
                 >
-                  <User className="h-3.5 w-3.5 text-muted-foreground" />
-                  User Identifier
+                  <User className="h-3.5 w-3.5 text-primary" />
+                  Shopper Identifier
                 </Label>
-                <div className="flex gap-1">
-                  {['shopper-1', 'flash-buyer', 'vip-customer'].map((preset) => (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-muted-foreground mr-1 hidden sm:inline">Presets:</span>
+                  {['buyer-beta', 'flash-vip', 'speedy-buyer'].map((preset) => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => field.handleChange(preset)}
-                      className="text-[10px] text-primary hover:underline bg-muted/60 px-1.5 py-0.5 rounded cursor-pointer"
+                      className="text-[10px] font-mono text-muted-foreground hover:text-primary bg-muted/60 hover:bg-primary/10 border border-border/60 hover:border-primary/30 px-1.5 py-0.5 rounded transition-all cursor-pointer"
                     >
                       {preset}
                     </button>
@@ -105,12 +122,15 @@ export function ReservationFormTanStack({
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder="Enter User ID (e.g. user-8492)"
+                placeholder="Enter client ID (e.g. shopper-alpha)"
                 disabled={reserveMutation.isPending || isSoldOut}
-                className={errorMsg ? 'border-destructive' : ''}
+                className={errorMsg ? 'border-destructive focus-visible:border-destructive' : ''}
               />
               {errorMsg && (
-                <p className="text-xs text-destructive">{errorMsg}</p>
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errorMsg}
+                </p>
               )}
             </div>
           )
@@ -137,6 +157,7 @@ export function ReservationFormTanStack({
       >
         {(field) => {
           const errorMsg = field.state.meta.errors?.[0]
+          const currentQty = field.state.value || 1
           return (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
@@ -144,11 +165,11 @@ export function ReservationFormTanStack({
                   htmlFor="tanstack-quantity"
                   className="text-xs font-semibold flex items-center gap-1.5 text-foreground"
                 >
-                  <ShoppingBag className="h-3.5 w-3.5 text-muted-foreground" />
+                  <ShoppingBag className="h-3.5 w-3.5 text-primary" />
                   Reservation Quantity
                 </Label>
-                <span className="text-[11px] text-muted-foreground">
-                  Available: {availableStock}
+                <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
+                  Max available: <strong className="text-foreground">{availableStock}</strong> units
                 </span>
               </div>
 
@@ -157,15 +178,14 @@ export function ReservationFormTanStack({
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9 shrink-0"
+                  className="h-9.5 w-9.5 shrink-0 rounded-lg cursor-pointer"
                   disabled={
-                    field.state.value <= 1 ||
+                    currentQty <= 1 ||
                     reserveMutation.isPending ||
                     isSoldOut
                   }
-                  onClick={() =>
-                    field.handleChange(Math.max(1, field.state.value - 1))
-                  }
+                  onClick={() => field.handleChange(Math.max(1, currentQty - 1))}
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </Button>
@@ -175,13 +195,11 @@ export function ReservationFormTanStack({
                   type="number"
                   min={1}
                   max={availableStock > 0 ? availableStock : 1}
-                  value={field.state.value}
-                  onChange={(e) =>
-                    field.handleChange(Number.parseInt(e.target.value, 10) || 1)
-                  }
+                  value={currentQty}
+                  onChange={(e) => field.handleChange(Number(e.target.value))}
                   onBlur={field.handleBlur}
                   disabled={reserveMutation.isPending || isSoldOut}
-                  className={`text-center font-bold ${
+                  className={`text-center font-mono font-bold text-base h-9.5 tabular-nums ${
                     errorMsg ? 'border-destructive' : ''
                   }`}
                 />
@@ -190,21 +208,24 @@ export function ReservationFormTanStack({
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9 shrink-0"
+                  className="h-9.5 w-9.5 shrink-0 rounded-lg cursor-pointer"
                   disabled={
-                    (availableStock > 0 &&
-                      field.state.value >= availableStock) ||
+                    (availableStock > 0 && currentQty >= availableStock) ||
                     reserveMutation.isPending ||
                     isSoldOut
                   }
-                  onClick={() => field.handleChange(field.state.value + 1)}
+                  onClick={() => field.handleChange(currentQty + 1)}
+                  aria-label="Increase quantity"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </Button>
               </div>
 
               {errorMsg && (
-                <p className="text-xs text-destructive">{errorMsg}</p>
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errorMsg}
+                </p>
               )}
             </div>
           )
@@ -224,18 +245,20 @@ export function ReservationFormTanStack({
       {/* Submit Button */}
       <Button
         type="submit"
-        className="w-full font-semibold gap-2 mt-2"
+        size="lg"
+        className="w-full font-bold gap-2 mt-2 h-11 text-sm shadow-md shadow-primary/20 cursor-pointer"
         disabled={reserveMutation.isPending || isSoldOut}
       >
         {reserveMutation.isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Acquiring Pessimistic Lock...
+            Acquiring Pessimistic Lock in DB...
           </>
         ) : isSoldOut ? (
-          'Stock Exhausted'
+          'Physical Stock Exhausted'
         ) : (
           <>
+            <Lock className="h-4 w-4" />
             Reserve Flash-Sale Stock
             <ArrowRight className="h-4 w-4" />
           </>
