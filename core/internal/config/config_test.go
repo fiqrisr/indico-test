@@ -16,7 +16,7 @@ func TestLoad_Defaults(t *testing.T) {
 	cfg := config.Load()
 
 	assert.Equal(t, "8080", cfg.Port)
-	assert.Equal(t, "postgres://postgres:postgres@localhost:5433/inventory_db?sslmode=disable", cfg.DatabaseURL)
+	assert.Equal(t, "postgres://postgres:postgres@localhost:5433/indico_test_db?sslmode=disable", cfg.DatabaseURL)
 	assert.Equal(t, "release", cfg.GinMode)
 	assert.Equal(t, 30*time.Second, cfg.ExpiryInterval)
 	assert.Equal(t, 5*time.Minute, cfg.ReservationExpiryDuration)

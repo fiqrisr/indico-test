@@ -23,7 +23,7 @@ import (
 func getTestDB(t *testing.T) *sql.DB {
 	dbURL := os.Getenv("TEST_DATABASE_URL")
 	if dbURL == "" {
-		dbURL = "postgres://postgres:postgres@localhost:5433/inventory_db?sslmode=disable"
+		dbURL = "postgres://postgres:postgres@localhost:5433/indico_test_db?sslmode=disable"
 	}
 
 	db, err := database.Connect(dbURL)
