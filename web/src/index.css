@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @plugin "tailwindcss-animate";
 
@@ -111,12 +112,12 @@
     --secondary-foreground: 224 35% 24%;
 
     --muted: 216 20% 93%;
-    --muted-foreground: 220 15% 44%;
+    --muted-foreground: 220 18% 38%;
 
     --accent: 226 65% 94%;
     --accent-foreground: 226 72% 38%;
 
-    --destructive: 0 76% 52%;
+    --destructive: 0 76% 45%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 156 72% 38%;
@@ -142,19 +143,19 @@
     --popover: 224 32% 10.5%;
     --popover-foreground: 214 28% 95%;
 
-    --primary: 226 80% 64%;
+    --primary: 226 82% 69%;
     --primary-foreground: 224 38% 7%;
 
     --secondary: 224 24% 16%;
     --secondary-foreground: 214 20% 88%;
 
     --muted: 224 24% 15%;
-    --muted-foreground: 218 16% 62%;
+    --muted-foreground: 218 18% 68%;
 
     --accent: 226 35% 18%;
     --accent-foreground: 214 28% 95%;
 
-    --destructive: 0 72% 52%;
+    --destructive: 0 84% 65%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 156 68% 44%;
@@ -165,7 +166,7 @@
 
     --border: 224 22% 17%;
     --input: 224 22% 17%;
-    --ring: 226 80% 64%;
+    --ring: 226 82% 69%;
   }
 }
 
@@ -189,16 +190,7 @@
   }
 }
 
-/* Micro-dot blueprint background texture */
-.bg-grid-pattern {
-  background-size: 24px 24px;
-  background-image: radial-gradient(
-    circle,
-    currentColor 1px,
-    transparent 1px
-  );
-}
-
+/* Tabular numbers helper for timers and stock counts */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }

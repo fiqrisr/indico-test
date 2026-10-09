@@ -3,22 +3,22 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold tracking-wide transition-all select-none',
+  'inline-flex items-center justify-center whitespace-nowrap shrink-0 rounded-md border px-2 py-0.5 text-xs font-semibold tracking-wide transition-all select-none',
   {
     variants: {
       variant: {
         default:
-          'border-primary/20 bg-primary/10 text-primary hover:bg-primary/15',
+          'border-primary/25 bg-primary/10 text-primary dark:text-blue-300 font-semibold hover:bg-primary/15',
         secondary:
-          'border-border/60 bg-secondary/80 text-secondary-foreground hover:bg-secondary',
+          'border-border/60 bg-secondary/80 text-secondary-foreground font-semibold hover:bg-secondary',
         destructive:
-          'border-destructive/25 bg-destructive/10 text-destructive dark:text-destructive-foreground hover:bg-destructive/15',
+          'border-red-500/30 bg-red-500/15 text-red-800 dark:border-red-500/40 dark:bg-red-500/20 dark:text-red-200 font-semibold hover:bg-red-500/25',
         outline:
           'border-border/80 text-foreground bg-card/60 hover:bg-muted/60',
         success:
-          'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold hover:bg-emerald-500/15',
+          'border-emerald-500/30 bg-emerald-500/15 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-200 font-semibold hover:bg-emerald-500/25',
         warning:
-          'border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-semibold hover:bg-amber-500/15',
+          'border-amber-500/30 bg-amber-500/15 text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/20 dark:text-amber-200 font-semibold hover:bg-amber-500/25',
       },
     },
     defaultVariants: {
