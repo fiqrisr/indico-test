@@ -104,8 +104,8 @@ export function AppShell() {
       {/* Footer */}
       <footer className="border-t py-4 text-center text-xs text-muted-foreground bg-card/40">
         <div className="container max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>High-Throughput Inventory Reservation System &bull; Frontend</span>
-          <span className="font-mono text-[11px]">React 19 &bull; Vite 6 &bull; TanStack Query &bull; Shadcn UI</span>
+          <span>High-Throughput Inventory Reservation System &bull; Web</span>
+          <span className="font-mono text-[11px]">React 19 &bull; Vite 8 &bull; Tailwind v4 &bull; TanStack Query &bull; Shadcn UI</span>
         </div>
       </footer>
     </div>

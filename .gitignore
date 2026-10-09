@@ -25,7 +25,7 @@ coverage.out
 *.swo
 .DS_Store
 
-# Node / Frontend (for future frontend workspace)
+# Node / Web workspace
 node_modules/
 dist/
 .vite/
