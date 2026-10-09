@@ -1,29 +1,29 @@
-# Specification: High-Throughput Flash-Sale Frontend Application
+# Specification: High-Throughput Flash-Sale Web Application
 
 ## 1. Objective
 
-Deliver a high-reliability, real-time frontend dashboard for the High-Throughput Inventory Reservation System.
+Deliver a high-reliability, real-time web dashboard for the High-Throughput Inventory Reservation System.
 The application connects to the Go + Gin core microservice and PostgreSQL database to provide:
 1. **Live Inventory Tracking**: Real-time polling and visualization of `total_stock`, `reserved_stock`, and `available_stock`.
 2. **High-Concurrency Reservation Submission**: Robust form submission using `@tanstack/react-form` and `react-hook-form` with field-level validation and instantaneous error feedback.
 3. **Dual-Phase Hold & Confirmation Workflow**: Dynamic 5-minute countdown timer calculated against the backend's `expires_at` timestamp with automatic expiration handling, button lockout, and confirmation execution.
 4. **Resilient Feedback & Error Handling**: Toast and inline alerts handling concurrency conflicts (HTTP 409 Insufficient Stock), expiration events (HTTP 400), and network degradations.
 
-The frontend must follow a strict **modular architecture** where business domains (`inventory`, `reservation`, `layout`) encapsulate their own API hooks, components, and types. Every file is strictly named in **`kebab-case`**.
+The web application must follow a strict **modular architecture** where business domains (`inventory`, `reservation`, `layout`) encapsulate their own API hooks, components, and types. Every file is strictly named in **`kebab-case`**.
 
 ---
 
 ## 2. Tech Stack & Dependencies
 
 - **Runtime & Package Manager**: Node.js v22+, `pnpm` v9+
-- **Framework & Bundler**: React 19 (or latest 18/19), Vite 6 (TypeScript)
+- **Framework & Bundler**: React 19, Vite 8 (TypeScript)
 - **State Management & Data Fetching**: `@tanstack/react-query` v5
 - **Form Libraries**:
   - `@tanstack/react-form` (Primary high-performance reactive reservation form)
   - `react-hook-form` + `@hookform/resolvers` + `zod` (Alternative modular form & configuration)
 - **UI Framework & Styling**:
-  - Tailwind CSS
-  - Shadcn UI (latest version, using Radix Primitives & Lucide React)
+  - Tailwind CSS v4 (integrated via `@tailwindcss/vite` and CSS-first `@theme` tokens)
+  - Shadcn UI (using Radix Primitives & Lucide React)
   - `sonner` for rich toasts
 - **Utilities**: `clsx`, `tailwind-merge`, `date-fns`
 
@@ -32,7 +32,7 @@ The frontend must follow a strict **modular architecture** where business domain
 ## 3. Capability Map & Module Architecture
 
 ```
-frontend/
+web/
 ├── src/
 │   ├── assets/
 │   ├── components/
@@ -86,12 +86,11 @@ frontend/
 │   │           └── use-service-health.ts # GET /health connectivity checker
 │   ├── app.tsx                           # Application root composition
 │   ├── main.tsx                          # App bootstrapping & provider hierarchy
-│   └── index.css                         # Tailwind CSS design system tokens
+│   └── index.css                         # Tailwind CSS v4 design tokens (@import "tailwindcss", @theme)
 ├── index.html
 ├── package.json
 ├── tsconfig.json
-├── vite.config.ts
-└── tailwind.config.js / components.json
+└── vite.config.ts                        # Vite 8 configuration with @tailwindcss/vite plugin
 ```
 
 ---
@@ -141,10 +140,13 @@ To fulfill both requirements elegantly and showcase modern state management patt
 ## 6. Commands
 
 ```bash
+# Navigate to web workspace
+cd web
+
 # Development server (proxies API requests to backend :8081 or :8080)
 pnpm run dev
 
-# Production build & TypeScript check
+# Production build & TypeScript check (Vite 8 + Tailwind CSS v4)
 pnpm run build
 
 # Code linting
@@ -158,9 +160,9 @@ pnpm run preview
 
 ## 7. Testing & Verification Strategy
 
-- **Static Type Safety**: `pnpm run build` (`tsc -b && vite build`) with zero errors.
+- **Static Type Safety & Build**: `pnpm run build` (`tsc -b && vite build`) under Vite 8 and Tailwind CSS v4 with zero errors.
 - **Component Unit Verification**: Verify field validation, error triggers, and countdown timer calculations.
-- **Runtime Smoke Test**: Run Vite dev server, execute health check, mock or test live against backend API:
+- **Runtime Smoke Test**: Run Vite 8 dev server, execute health check, mock or test live against backend API:
   - Stock polling updates.
   - Reservation creation, countdown timer tick, expiration lockout.
   - Confirmation submission.
