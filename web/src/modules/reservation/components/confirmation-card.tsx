@@ -64,8 +64,8 @@ export function ConfirmationCard({
       const result = await confirmMutation.mutateAsync({
         reservation_id: hold.reservationId,
       })
-      toast.success('Inventory Purchase Confirmed', {
-        description: `Hold ${hold.reservationId.slice(0, 8)} finalized in database.`,
+      toast.success('Purchase Confirmed', {
+        description: `Successfully confirmed ${hold.quantity} unit(s) of ${hold.itemId}.`,
       })
       onConfirmSuccess(result.confirmed_at)
     } catch (err: unknown) {
@@ -82,26 +82,15 @@ export function ConfirmationCard({
 
   return (
     <Card
-      className={`relative overflow-hidden border shadow-sm transition-all duration-300 ${
+      className={`relative overflow-hidden border shadow-xs transition-all duration-200 ${
         isConfirmed
-          ? 'border-emerald-500/40 bg-emerald-500/3 dark:bg-emerald-500/5'
+          ? 'border-emerald-500/30 bg-emerald-500/5'
           : isExpired
-          ? 'border-destructive/40 bg-destructive/3 dark:bg-destructive/5'
-          : 'border-primary/40 bg-card/90 ring-1 ring-primary/20'
+          ? 'border-destructive/30 bg-destructive/5'
+          : 'border-border/80 bg-card'
       }`}
     >
-      {/* Top Status Gradient Bar */}
-      <div
-        className={`h-1.5 w-full ${
-          isConfirmed
-            ? 'bg-emerald-500'
-            : isExpired
-            ? 'bg-destructive'
-            : 'bg-gradient-to-r from-primary via-primary/80 to-amber-500'
-        }`}
-      />
-
-      <CardHeader className="pb-3.5 pt-5">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span
@@ -110,7 +99,7 @@ export function ConfirmationCard({
                   ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
                   : isExpired
                   ? 'border-destructive/30 bg-destructive/15 text-destructive'
-                  : 'border-primary/30 bg-primary/15 text-primary'
+                  : 'border-primary/20 bg-primary/10 text-primary'
               }`}
             >
               {isConfirmed ? (
@@ -122,15 +111,19 @@ export function ConfirmationCard({
               )}
             </span>
             <div>
-              <CardTitle className="text-lg sm:text-xl font-bold flex items-center gap-2">
+              <CardTitle className="text-base sm:text-lg font-bold">
                 {isConfirmed
-                  ? 'Stock Purchase Finalized'
+                  ? 'Purchase Confirmed'
                   : isExpired
-                  ? 'Hold Lease Elapsed'
-                  : 'Active Stock Hold'}
+                  ? 'Hold Expired'
+                  : 'Active Reservation'}
               </CardTitle>
-              <CardDescription className="text-xs">
-                Two-Phase Stock Hold Pipeline &bull; Phase 2 Finalization
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                {isConfirmed
+                  ? 'Your order is complete and units are secured'
+                  : isExpired
+                  ? 'Hold elapsed. Stock has been returned to inventory'
+                  : 'Complete purchase before the timer runs out'}
               </CardDescription>
             </div>
           </div>
@@ -139,29 +132,28 @@ export function ConfirmationCard({
             variant={
               isConfirmed ? 'success' : isExpired ? 'destructive' : 'default'
             }
-            className="text-xs font-mono px-2.5 py-0.5 uppercase tracking-wider"
+            className="text-xs font-mono px-2 py-0.5 uppercase tracking-wider whitespace-nowrap shrink-0"
           >
-            {isConfirmed ? 'CONFIRMED' : isExpired ? 'EXPIRED' : 'HOLD ACTIVE'}
+            {isConfirmed ? 'Confirmed' : isExpired ? 'Expired' : 'Active'}
           </Badge>
         </div>
       </CardHeader>
-
       <CardContent className="space-y-4">
         {/* Reservation Metadata Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-muted/30 p-3.5 rounded-xl border border-border/70 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-muted/40 p-3.5 rounded-xl border border-border/70 text-xs">
           <div className="space-y-0.5">
-            <span className="text-muted-foreground block text-[10px] font-mono uppercase tracking-wider">
-              Target SKU
+            <span className="text-muted-foreground block text-[10px] uppercase tracking-wider font-semibold">
+              Item
             </span>
-            <div className="flex items-center gap-1.5 font-mono font-bold text-foreground truncate">
+            <div className="flex items-center gap-1.5 font-bold text-foreground truncate">
               <Package className="h-3.5 w-3.5 text-primary shrink-0" />
               <span className="truncate">{hold.itemId}</span>
             </div>
           </div>
 
           <div className="space-y-0.5">
-            <span className="text-muted-foreground block text-[10px] font-mono uppercase tracking-wider">
-              Units Reserved
+            <span className="text-muted-foreground block text-[10px] uppercase tracking-wider font-semibold">
+              Quantity
             </span>
             <div className="font-mono font-bold text-foreground tabular-nums text-sm">
               {hold.quantity} {hold.quantity === 1 ? 'unit' : 'units'}
@@ -169,25 +161,25 @@ export function ConfirmationCard({
           </div>
 
           <div className="space-y-0.5">
-            <span className="text-muted-foreground block text-[10px] font-mono uppercase tracking-wider">
-              Shopper ID
+            <span className="text-muted-foreground block text-[10px] uppercase tracking-wider font-semibold">
+              Shopper
             </span>
-            <div className="flex items-center gap-1.5 font-mono font-semibold text-foreground truncate">
+            <div className="flex items-center gap-1.5 font-medium text-foreground truncate">
               <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <span className="truncate">{hold.userId}</span>
             </div>
           </div>
 
           <div className="space-y-0.5">
-            <span className="text-muted-foreground block text-[10px] font-mono uppercase tracking-wider">
-              Hold Token
+            <span className="text-muted-foreground block text-[10px] uppercase tracking-wider font-semibold">
+              Hold ID
             </span>
             <div
-              className="flex items-center gap-1 font-mono text-muted-foreground truncate"
+              className="flex items-center gap-1 font-mono text-foreground font-medium truncate"
               title={hold.reservationId}
             >
-              <Fingerprint className="h-3.5 w-3.5 shrink-0 text-muted-foreground/70" />
-              <span className="truncate">{hold.reservationId.slice(0, 8)}...</span>
+              <Fingerprint className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{hold.reservationId.slice(0, 8)}</span>
             </div>
           </div>
         </div>
@@ -203,18 +195,17 @@ export function ConfirmationCard({
         {/* Confirmed Success Banner */}
         {isConfirmed && (
           <Alert variant="success" className="border-emerald-500/30 bg-emerald-500/10">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-            <AlertTitle className="font-bold text-emerald-800 dark:text-emerald-300">
-              Inventory Decrement Committed
+            <AlertTitle className="font-bold text-emerald-900 dark:text-emerald-200">
+              Order Successfully Placed
             </AlertTitle>
-            <AlertDescription className="text-xs text-emerald-900/80 dark:text-emerald-300/80 space-y-1">
+            <AlertDescription className="text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
               <p>
-                The temporary pessimistic lock was successfully promoted to a permanent inventory decrement transaction.
+                Your reservation has been confirmed and the items are allocated to your account.
               </p>
               {hold.confirmedAt && (
-                <div className="font-mono text-[11px] pt-1 text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                <div className="font-mono text-[11px] pt-1 text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
                   <Clock className="h-3 w-3" />
-                  <span>Committed At: {new Date(hold.confirmedAt).toLocaleTimeString()} ({new Date(hold.confirmedAt).toLocaleDateString()})</span>
+                  <span>Confirmed: {new Date(hold.confirmedAt).toLocaleTimeString()} ({new Date(hold.confirmedAt).toLocaleDateString()})</span>
                 </div>
               )}
             </AlertDescription>
@@ -225,16 +216,15 @@ export function ConfirmationCard({
         {isExpired && !isConfirmed && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="font-bold">Reservation Lease Expired</AlertTitle>
+            <AlertTitle className="font-bold">Reservation Expired</AlertTitle>
             <AlertDescription className="text-xs space-y-1">
               <p>
-                The 5-minute checkout lease has elapsed. The row-lock hold on{' '}
-                <code className="font-bold">{hold.itemId}</code> was released back into available inventory.
+                The 5-minute checkout window has elapsed. The hold on{' '}
+                <code className="font-bold">{hold.itemId}</code> has been returned to available stock.
               </p>
             </AlertDescription>
           </Alert>
         )}
-
         {/* Backend Mutation Error */}
         {confirmMutation.isError && (
           <Alert variant="destructive">
@@ -254,17 +244,17 @@ export function ConfirmationCard({
             disabled={confirmMutation.isPending || isExpired}
             variant="success"
             size="lg"
-            className="w-full sm:flex-1 font-bold gap-2 text-sm h-10 cursor-pointer shadow-sm shadow-emerald-500/20"
+            className="w-full sm:flex-1 font-bold gap-2 text-sm h-10 cursor-pointer shadow-xs"
           >
             {confirmMutation.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Executing PostgreSQL Commit...
+                Processing Purchase...
               </>
             ) : (
               <>
                 <ShieldCheck className="h-4 w-4" />
-                Confirm Purchase ({hold.quantity} units)
+                Confirm Purchase ({hold.quantity} {hold.quantity === 1 ? 'unit' : 'units'})
               </>
             )}
           </Button>
@@ -276,7 +266,7 @@ export function ConfirmationCard({
             className="w-full sm:flex-1 font-bold gap-2 text-sm h-10 cursor-pointer"
           >
             <RotateCcw className="h-4 w-4" />
-            Start New Reservation
+            New Reservation
           </Button>
         )}
 
@@ -288,7 +278,7 @@ export function ConfirmationCard({
             className="text-muted-foreground hover:text-foreground text-xs h-9 cursor-pointer gap-1.5"
           >
             <XCircle className="h-3.5 w-3.5" />
-            Cancel Hold
+            Release Hold
           </Button>
         )}
       </CardFooter>

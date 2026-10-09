@@ -48,10 +48,10 @@ export function CountdownTimer({ expiresAt, onExpire }: CountdownTimerProps) {
           </div>
           <div>
             <span className="text-xs font-bold tracking-tight text-foreground block">
-              Reservation Hold Lease
+              Checkout Window
             </span>
             <span className="text-[11px] text-muted-foreground">
-              Temporary row-lock reservation
+              Items held exclusively for you
             </span>
           </div>
         </div>
@@ -66,7 +66,7 @@ export function CountdownTimer({ expiresAt, onExpire }: CountdownTimerProps) {
             EXPIRING SOON
           </Badge>
         ) : (
-          <Badge variant="outline" className="font-mono text-[10px] gap-1 text-primary border-primary/30 bg-primary/5">
+          <Badge variant="outline" className="font-mono text-[10px] gap-1 text-primary dark:text-blue-300 border-primary/30 dark:border-blue-500/30 bg-primary/5 dark:bg-blue-500/10 font-semibold">
             <ShieldCheck className="h-3 w-3" />
             5-MIN WINDOW
           </Badge>
@@ -75,12 +75,12 @@ export function CountdownTimer({ expiresAt, onExpire }: CountdownTimerProps) {
 
       {/* Large Digital Clock Face */}
       <div className="flex items-baseline justify-between rounded-lg bg-card/60 border border-border/60 px-4 py-2.5">
-        <span className="text-xs text-muted-foreground font-medium">Time Remaining:</span>
+        <span className="text-xs text-foreground/80 font-medium">Time Remaining:</span>
         <div className="flex items-baseline gap-1.5">
           <span
             className={`font-mono text-3xl font-extrabold tracking-tight tabular-nums ${
               isExpired
-                ? 'text-destructive line-through opacity-75'
+                ? 'text-destructive line-through opacity-85'
                 : isLowTime
                 ? 'text-destructive font-black'
                 : 'text-foreground'
@@ -88,7 +88,7 @@ export function CountdownTimer({ expiresAt, onExpire }: CountdownTimerProps) {
           >
             {formattedTime}
           </span>
-          <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground">
+          <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-medium">
             {isExpired ? 'released' : 'm:s'}
           </span>
         </div>
@@ -107,11 +107,11 @@ export function CountdownTimer({ expiresAt, onExpire }: CountdownTimerProps) {
       />
 
       <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
-        <span>Initial lease allocation: 5m 00s</span>
+        <span>Total hold time: 5 minutes</span>
         {isLowTime && !isExpired && (
           <span className="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold tabular-nums">
             <AlertTriangle className="h-3 w-3" />
-            Under 60 seconds remaining!
+            Under 60 seconds left
           </span>
         )}
       </div>

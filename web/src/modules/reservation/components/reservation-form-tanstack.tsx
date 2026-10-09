@@ -6,8 +6,6 @@ import {
   Lock,
   Minus,
   Plus,
-  ShoppingBag,
-  User,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -49,8 +47,8 @@ export function ReservationFormTanStack({
           item_id: itemId,
           quantity: value.quantity,
         })
-        toast.success('Pessimistic Hold Granted!', {
-          description: `Reserved ${value.quantity} unit(s) of ${itemId}. 5-minute checkout window active.`,
+        toast.success('Stock Reserved', {
+          description: `Held ${value.quantity} unit(s) of ${itemId}. Complete checkout within 5 minutes.`,
         })
         onSuccess(result, value.userId.trim())
       } catch (err: unknown) {
@@ -98,19 +96,18 @@ export function ReservationFormTanStack({
               <div className="flex items-center justify-between flex-wrap gap-1">
                 <Label
                   htmlFor="tanstack-userId"
-                  className="text-xs font-semibold flex items-center gap-1.5 text-foreground"
+                  className="text-xs font-semibold text-foreground"
                 >
-                  <User className="h-3.5 w-3.5 text-primary" />
-                  Shopper Identifier
+                  Shopper ID
                 </Label>
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground mr-1 hidden sm:inline">Presets:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-muted-foreground hidden sm:inline">Presets:</span>
                   {['buyer-beta', 'flash-vip', 'speedy-buyer'].map((preset) => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => field.handleChange(preset)}
-                      className="text-[10px] font-mono text-muted-foreground hover:text-primary bg-muted/60 hover:bg-primary/10 border border-border/60 hover:border-primary/30 px-1.5 py-0.5 rounded transition-all cursor-pointer"
+                      className="text-[11px] font-mono text-foreground/90 font-medium hover:text-foreground bg-muted/60 hover:bg-muted px-2 py-0.5 rounded-md border border-border/70 transition-all cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {preset}
                     </button>
@@ -122,9 +119,9 @@ export function ReservationFormTanStack({
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder="Enter client ID (e.g. shopper-alpha)"
+                placeholder="e.g. shopper-alpha"
                 disabled={reserveMutation.isPending || isSoldOut}
-                className={errorMsg ? 'border-destructive focus-visible:border-destructive' : ''}
+                className={`h-9.5 text-sm ${errorMsg ? 'border-destructive focus-visible:border-destructive' : ''}`}
               />
               {errorMsg && (
                 <p className="text-xs text-destructive flex items-center gap-1">
@@ -163,12 +160,11 @@ export function ReservationFormTanStack({
               <div className="flex items-center justify-between">
                 <Label
                   htmlFor="tanstack-quantity"
-                  className="text-xs font-semibold flex items-center gap-1.5 text-foreground"
+                  className="text-xs font-semibold text-foreground"
                 >
-                  <ShoppingBag className="h-3.5 w-3.5 text-primary" />
-                  Reservation Quantity
+                  Quantity
                 </Label>
-                <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
+                <span className="text-xs text-muted-foreground tabular-nums">
                   Max available: <strong className="text-foreground">{availableStock}</strong> units
                 </span>
               </div>
@@ -246,20 +242,20 @@ export function ReservationFormTanStack({
       <Button
         type="submit"
         size="lg"
-        className="w-full font-bold gap-2 mt-2 h-11 text-sm shadow-md shadow-primary/20 cursor-pointer"
+        className="w-full font-bold gap-2 mt-2 h-10.5 text-sm cursor-pointer shadow-xs"
         disabled={reserveMutation.isPending || isSoldOut}
       >
         {reserveMutation.isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Acquiring Pessimistic Lock in DB...
+            Securing Reservation...
           </>
         ) : isSoldOut ? (
-          'Physical Stock Exhausted'
+          'Sold Out'
         ) : (
           <>
             <Lock className="h-4 w-4" />
-            Reserve Flash-Sale Stock
+            Reserve {form.getFieldValue('quantity') || 1} {form.getFieldValue('quantity') === 1 ? 'Unit' : 'Units'}
             <ArrowRight className="h-4 w-4" />
           </>
         )}
