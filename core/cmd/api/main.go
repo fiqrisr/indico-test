@@ -36,9 +36,9 @@ func main() {
 	}()
 
 	repo := repository.NewPostgresRepository(db)
-	svc := service.NewInventoryService(repo, cfg.ReservationExpiryDuration)
-	h := handler.NewInventoryHandler(svc)
-	router := handler.SetupRouter(h, cfg.GinMode)
+	inventoryService := service.NewInventoryService(repo, cfg.ReservationExpiryDuration)
+	inventoryHandler := handler.NewInventoryHandler(inventoryService)
+	inventoryRouter := handler.SetupRouter(inventoryHandler, cfg.GinMode)
 
 	// Context for background workers and graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
@@ -50,7 +50,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),
-		Handler: router,
+		Handler: inventoryRouter,
 	}
 
 	// Server run in separate goroutine
