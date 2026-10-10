@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -12,13 +10,19 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-indico_test_db}
+    security_opt:
+      - apparmor:unconfined
     ports:
       - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-indico_test_db}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-indico_test_db}",
+        ]
       interval: 3s
       timeout: 3s
       retries: 10
@@ -40,9 +44,33 @@ services:
       DATABASE_URL: "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-indico_test_db}?sslmode=disable"
       EXPIRY_INTERVAL: ${EXPIRY_INTERVAL:-30s}
       RESERVATION_EXPIRY_MINUTES: ${RESERVATION_EXPIRY_MINUTES:-5}
+    security_opt:
+      - apparmor:unconfined
     depends_on:
       postgres:
         condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: indico-test-web
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    env_file:
+      - path: ./web/.env
+        required: false
+    environment:
+      VITE_API_TARGET: ${VITE_API_TARGET:-http://core:8080}
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    depends_on:
+      - core
 
 volumes:
   postgres_data:
