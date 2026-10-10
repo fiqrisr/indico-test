@@ -40,8 +40,21 @@ type ReserveStockRequest struct {
 	Quantity int    `json:"quantity" binding:"required,gt=0"`
 }
 
+// ResponseStatus constants indicate the standard outcome of an API call.
+const (
+	ResponseStatusSuccess = "success"
+	ResponseStatusError   = "error"
+)
+
+// ErrorResponse is the standard payload returned upon an API error.
+type ErrorResponse struct {
+	Status string `json:"status"`
+	Error  string `json:"error"`
+}
+
 // ReserveStockResponse is the payload returned upon successful reservation.
 type ReserveStockResponse struct {
+	Status        string    `json:"status"`
 	ReservationID string    `json:"reservation_id"`
 	ItemID        string    `json:"item_id"`
 	Quantity      int       `json:"quantity"`
@@ -55,18 +68,19 @@ type ConfirmReservationRequest struct {
 
 // ConfirmReservationResponse is the payload returned upon successful confirmation.
 type ConfirmReservationResponse struct {
+	Status        string    `json:"status"`
 	ReservationID string    `json:"reservation_id"`
 	ConfirmedAt   time.Time `json:"confirmed_at"`
 }
 
 // InventoryStockResponse is the payload for GET /api/v1/inventory/stock.
 type InventoryStockResponse struct {
+	Status         string `json:"status"`
 	ItemID         string `json:"item_id"`
 	TotalStock     int    `json:"total_stock"`
 	ReservedStock  int    `json:"reserved_stock"`
 	AvailableStock int    `json:"available_stock"`
 }
-
 // Domain Errors
 var (
 	ErrItemNotFound          = errors.New("item not found")

@@ -79,11 +79,11 @@ func TestReserveStock_Handler(t *testing.T) {
 		var resp domain.ReserveStockResponse
 		err := json.Unmarshal(w.Body.Bytes(), &resp)
 		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusSuccess, resp.Status)
 		assert.Equal(t, "res-123", resp.ReservationID)
 		assert.Equal(t, "item-1", resp.ItemID)
 		assert.Equal(t, 2, resp.Quantity)
 	})
-
 	t.Run("insufficient stock returns 409", func(t *testing.T) {
 		mockSvc := &mockInventoryService{
 			reserveFunc: func(ctx context.Context, req domain.ReserveStockRequest) (*domain.ReserveStockResponse, error) {
@@ -105,9 +105,12 @@ func TestReserveStock_Handler(t *testing.T) {
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusConflict, w.Code)
-		assert.Contains(t, w.Body.String(), "insufficient stock")
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Contains(t, errResp.Error, "insufficient stock")
 	})
-
 	t.Run("item not found returns 404", func(t *testing.T) {
 		mockSvc := &mockInventoryService{
 			reserveFunc: func(ctx context.Context, req domain.ReserveStockRequest) (*domain.ReserveStockResponse, error) {
@@ -127,10 +130,13 @@ func TestReserveStock_Handler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
-
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Equal(t, "item not found", errResp.Error)
 	})
-
 	t.Run("invalid input returns 400", func(t *testing.T) {
 		mockSvc := &mockInventoryService{}
 		router := setupTestRouter(mockSvc)
@@ -141,8 +147,12 @@ func TestReserveStock_Handler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
-
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Contains(t, errResp.Error, "invalid request body")
 	})
 }
 
@@ -173,9 +183,9 @@ func TestConfirmReservation_Handler(t *testing.T) {
 		var resp domain.ConfirmReservationResponse
 		err := json.Unmarshal(w.Body.Bytes(), &resp)
 		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusSuccess, resp.Status)
 		assert.Equal(t, "res-123", resp.ReservationID)
 	})
-
 	t.Run("reservation expired returns 400", func(t *testing.T) {
 		mockSvc := &mockInventoryService{
 			confirmFunc: func(ctx context.Context, req domain.ConfirmReservationRequest) (*domain.ConfirmReservationResponse, error) {
@@ -193,11 +203,13 @@ func TestConfirmReservation_Handler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
-
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		assert.Contains(t, w.Body.String(), "reservation has expired")
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Equal(t, "reservation has expired", errResp.Error)
 	})
-
 	t.Run("reservation not found returns 404", func(t *testing.T) {
 		mockSvc := &mockInventoryService{
 			confirmFunc: func(ctx context.Context, req domain.ConfirmReservationRequest) (*domain.ConfirmReservationResponse, error) {
@@ -217,6 +229,11 @@ func TestConfirmReservation_Handler(t *testing.T) {
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Equal(t, "reservation not found", errResp.Error)
 	})
 }
 
@@ -243,12 +260,12 @@ func TestGetStock_Handler(t *testing.T) {
 		var resp domain.InventoryStockResponse
 		err := json.Unmarshal(w.Body.Bytes(), &resp)
 		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusSuccess, resp.Status)
 		assert.Equal(t, "item-1", resp.ItemID)
 		assert.Equal(t, 100, resp.TotalStock)
 		assert.Equal(t, 20, resp.ReservedStock)
 		assert.Equal(t, 80, resp.AvailableStock)
 	})
-
 	t.Run("missing item_id returns 400", func(t *testing.T) {
 		mockSvc := &mockInventoryService{}
 		router := setupTestRouter(mockSvc)
@@ -257,10 +274,13 @@ func TestGetStock_Handler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
-
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Equal(t, "query parameter 'item_id' is required", errResp.Error)
 	})
-
 	t.Run("item not found returns 404", func(t *testing.T) {
 		mockSvc := &mockInventoryService{
 			stockFunc: func(ctx context.Context, itemID string) (*domain.InventoryStockResponse, error) {
@@ -273,8 +293,12 @@ func TestGetStock_Handler(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		router.ServeHTTP(w, req)
-
 		assert.Equal(t, http.StatusNotFound, w.Code)
+		var errResp domain.ErrorResponse
+		err := json.Unmarshal(w.Body.Bytes(), &errResp)
+		require.NoError(t, err)
+		assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+		assert.Equal(t, "item not found", errResp.Error)
 	})
 }
 
@@ -302,4 +326,21 @@ func TestCorsMiddleware(t *testing.T) {
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	assert.Equal(t, "*", w.Header().Get("Access-Control-Allow-Origin"))
+}
+
+func TestNoRoute_Handler(t *testing.T) {
+	mockSvc := &mockInventoryService{}
+	router := setupTestRouter(mockSvc)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/unknown-endpoint", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	var errResp domain.ErrorResponse
+	err := json.Unmarshal(w.Body.Bytes(), &errResp)
+	require.NoError(t, err)
+	assert.Equal(t, domain.ResponseStatusError, errResp.Status)
+	assert.Equal(t, "route not found", errResp.Error)
 }

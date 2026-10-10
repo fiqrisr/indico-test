@@ -28,6 +28,10 @@ func SetupRouter(h *InventoryHandler, mode string) *gin.Engine {
 		v1.GET("/stock", h.GetStock)
 	}
 
+	router.NoRoute(func(c *gin.Context) {
+		sendError(c, http.StatusNotFound, "route not found")
+	})
+
 	return router
 }
 

@@ -92,6 +92,7 @@ func (s *inventoryService) ReserveStock(ctx context.Context, req domain.ReserveS
 	}
 
 	return &domain.ReserveStockResponse{
+		Status:        domain.ResponseStatusSuccess,
 		ReservationID: reservationID,
 		ItemID:        req.ItemID,
 		Quantity:      req.Quantity,
@@ -153,6 +154,7 @@ func (s *inventoryService) ConfirmReservation(ctx context.Context, req domain.Co
 	}
 
 	return &domain.ConfirmReservationResponse{
+		Status:        domain.ResponseStatusSuccess,
 		ReservationID: res.ReservationID,
 		ConfirmedAt:   now,
 	}, nil
@@ -165,5 +167,10 @@ func (s *inventoryService) GetStock(ctx context.Context, itemID string) (*domain
 		return nil, domain.ErrInvalidInput
 	}
 
-	return s.repo.GetInventoryStock(ctx, itemID)
+	resp, err := s.repo.GetInventoryStock(ctx, itemID)
+	if err != nil {
+		return nil, err
+	}
+	resp.Status = domain.ResponseStatusSuccess
+	return resp, nil
 }

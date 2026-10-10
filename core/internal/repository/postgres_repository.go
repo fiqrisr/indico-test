@@ -184,6 +184,7 @@ func (r *PostgresRepository) GetInventoryStock(ctx context.Context, itemID strin
 	if resp.AvailableStock < 0 {
 		resp.AvailableStock = 0
 	}
+	resp.Status = domain.ResponseStatusSuccess
 	return &resp, nil
 }
 

@@ -22,7 +22,7 @@ func NewInventoryHandler(service service.InventoryService) *InventoryHandler {
 func (h *InventoryHandler) ReserveStock(c *gin.Context) {
 	var req domain.ReserveStockRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body: " + err.Error()})
+		sendError(c, http.StatusBadRequest, "invalid request body: "+err.Error())
 		return
 	}
 
@@ -32,14 +32,15 @@ func (h *InventoryHandler) ReserveStock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	res.Status = domain.ResponseStatusSuccess
+	sendSuccess(c, http.StatusOK, res)
 }
 
 // ConfirmReservation handles POST /api/v1/inventory/confirm.
 func (h *InventoryHandler) ConfirmReservation(c *gin.Context) {
 	var req domain.ConfirmReservationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body: " + err.Error()})
+		sendError(c, http.StatusBadRequest, "invalid request body: "+err.Error())
 		return
 	}
 
@@ -49,14 +50,15 @@ func (h *InventoryHandler) ConfirmReservation(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	res.Status = domain.ResponseStatusSuccess
+	sendSuccess(c, http.StatusOK, res)
 }
 
 // GetStock handles GET /api/v1/inventory/stock?item_id={item_id}.
 func (h *InventoryHandler) GetStock(c *gin.Context) {
 	itemID := c.Query("item_id")
 	if itemID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "query parameter 'item_id' is required"})
+		sendError(c, http.StatusBadRequest, "query parameter 'item_id' is required")
 		return
 	}
 
@@ -66,7 +68,8 @@ func (h *InventoryHandler) GetStock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	res.Status = domain.ResponseStatusSuccess
+	sendSuccess(c, http.StatusOK, res)
 }
 
 // HealthCheck handles GET /health.
@@ -77,19 +80,30 @@ func (h *InventoryHandler) HealthCheck(c *gin.Context) {
 func handleError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, domain.ErrInvalidInput):
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		sendError(c, http.StatusBadRequest, err.Error())
 	case errors.Is(err, domain.ErrItemNotFound):
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		sendError(c, http.StatusNotFound, err.Error())
 	case errors.Is(err, domain.ErrReservationNotFound):
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		sendError(c, http.StatusNotFound, err.Error())
 	case errors.Is(err, domain.ErrInsufficientStock):
 		// Per specification: Insufficient stock (409/400)
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		sendError(c, http.StatusConflict, err.Error())
 	case errors.Is(err, domain.ErrReservationExpired):
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		sendError(c, http.StatusBadRequest, err.Error())
 	case errors.Is(err, domain.ErrReservationNotPending):
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		sendError(c, http.StatusBadRequest, err.Error())
 	default:
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error: " + err.Error()})
+		sendError(c, http.StatusInternalServerError, "internal server error: "+err.Error())
 	}
+}
+
+func sendSuccess(c *gin.Context, statusCode int, data any) {
+	c.JSON(statusCode, data)
+}
+
+func sendError(c *gin.Context, statusCode int, message string) {
+	c.JSON(statusCode, domain.ErrorResponse{
+		Status: domain.ResponseStatusError,
+		Error:  message,
+	})
 }
