@@ -392,9 +392,9 @@ Retrieves current real-time inventory counts for an item.
 ```json
 {
   "item_id": "flash-item-1",
-  "total_stock": 100,
+  "total_stock": 5000,
   "reserved_stock": 15,
-  "available_stock": 85
+  "available_stock": 4985
 }
 ```
 

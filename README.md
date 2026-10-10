@@ -23,6 +23,11 @@ A production-grade, microservice-based inventory reservation engine and real-tim
 - [Database Architecture & Indexes](#database-architecture--indexes)
 - [Frontend Dashboard Features](#frontend-dashboard-features)
 - [Verification & Testing](#verification--testing)
+  - [1. Backend Unit Tests with Race Detection](#1-backend-unit-tests-with-race-detection)
+  - [2. Multi-Item Concurrency Swarm Tests (100 Concurrent Users)](#2-multi-item-concurrency-swarm-tests-100-concurrent-users)
+  - [3. Full Integration Test Suite](#3-full-integration-test-suite)
+  - [4. External Multi-Item Stress Testing (k6, Docker, Python)](#4-external-multi-item-stress-testing-k6-docker-python)
+  - [5. Frontend Quality Checks & Production Build](#5-frontend-quality-checks--production-build)
 - [Configuration & Environment Variables](#configuration--environment-variables)
 - [Architecture Decision Records (ADRs) & Documentation](#architecture-decision-records-adrs--documentation)
 
@@ -203,13 +208,28 @@ Open `http://localhost:3000` in your browser.
 
 When the database starts, `scripts/init.sql` seeds initial items for testing:
 
-| Item ID | Initial Stock | Description |
-|---|---|---|
-| `flash-item-1` | **100** | Primary high-volume test item |
-| `flash-item-2` | **50** | Secondary flash-sale test item |
-| `iphone-15-pro` | **20** | High-contention limited item |
-| `limited-edition-sneakers` | **10** | Extreme-scarcity test item |
-
+| Item ID | Initial Stock | Category | Description |
+|---|---|---|---|
+| `flash-item-1` | **5,000** | Hardware | High-demand flash sale primary SKU with multi-region inventory allocation |
+| `flash-item-2` | **2,500** | Hardware | Secondary high-speed networking SKU with enterprise-grade allocation |
+| `iphone-15-pro` | **1,200** | Phones | Flagship smartphone tier with titanium chassis and A17 Pro silicon |
+| `limited-edition-sneakers` | **800** | Lifestyle | Exclusive designer streetwear runner drop with authenticated serials |
+| `playstation-5-pro` | **3,500** | Gaming | Next-gen high-frame-rate 4K console with upgraded ray tracing architecture |
+| `xbox-series-x-galaxy` | **1,800** | Gaming | 2TB custom edition home entertainment and gaming console |
+| `nintendo-switch-oled` | **4,000** | Gaming | Handheld hybrid gaming system with vibrant 7-inch OLED display |
+| `rtx-5090-oc` | **650** | Hardware | Ultra-enthusiast graphics card with 32GB GDDR7 memory for AI and gaming |
+| `macbook-pro-m4` | **1,500** | Computing | Pro workstation laptop with 16-core CPU, 40-core GPU, and 48GB unified memory |
+| `sony-wh1000xm5` | **3,200** | Audio | Industry-leading wireless noise-canceling headphones with dual processors |
+| `airpods-max-usb-c` | **2,000** | Audio | High-fidelity over-ear spatial audio headphones with active noise cancellation |
+| `steam-deck-oled` | **2,800** | Gaming | Portable PC gaming powerhouse with 90Hz HDR OLED screen and fast NVMe |
+| `ipad-pro-m4` | **1,600** | Computing | Tandem OLED breakthrough display with ultra-thin enclosure and M4 processor |
+| `apple-watch-ultra-2` | **2,200** | Wearables | Rugged 49mm titanium outdoor sports smartwatch with precision dual-frequency GPS |
+| `samsung-galaxy-s24-ultra` | **1,400** | Phones | AI-accelerated flagship Android phone with built-in S Pen and quad telephoto zoom |
+| `meta-quest-3s` | **4,500** | Gaming | Mixed-reality spatial computing and VR headset with color passthrough |
+| `dji-mini-4-pro` | **1,100** | Hardware | Ultralight 4K/60fps HDR camera drone with omnidirectional obstacle sensing |
+| `logitech-g-pro-superlight-2` | **6,000** | Gaming | 60g championship esports wireless gaming mouse with HERO 2 sensor |
+| `keychron-q1-he` | **2,400** | Computing | Custom wireless magnetic switch mechanical keyboard with rapid trigger |
+| `lg-ultragear-32-oled` | **950** | Gaming | Dual-mode 4K 240Hz / FHD 480Hz gaming monitor with 0.03ms GtG response |
 ---
 
 ## API Reference
@@ -292,9 +312,9 @@ Queries the real-time stock balance. Calculates available stock dynamically taki
 ```json
 {
   "item_id": "iphone-15-pro",
-  "total_stock": 20,
+  "total_stock": 1200,
   "reserved_stock": 2,
-  "available_stock": 18
+  "available_stock": 1198
 }
 ```
 
@@ -394,15 +414,35 @@ The web frontend (`web/`) provides a real-time operations console:
 ## Verification & Testing
 
 ### 1. Backend Unit Tests with Race Detection
-Runs all unit tests in `core` with Go's race detector enabled:
+Runs all internal package unit tests in `core` with Go's race detector enabled:
 
 ```bash
 cd core
 go test -race -v ./internal/...
 ```
 
-### 2. High-Concurrency Integration Tests
-Validates pessimistic row-locking under parallel goroutine load against a live PostgreSQL instance:
+---
+
+### 2. Multi-Item Concurrency Swarm Tests (100 Concurrent Users)
+Simulates a swarm of **100 concurrent users** competing for limited inventory across **at least 5 items in parallel**:
+
+```bash
+cd core
+go test -race -v -run TestSwarmHundredConcurrentUsersReservation ./test
+```
+
+*What this test verifies*:
+- **Synchronized Race Condition**: Releases 100 goroutines simultaneously using a start gate channel to maximize contention.
+- **Multi-Item Parallel Locks**: Distributes load across 5 distinct item rows (`swarm-item-1` through `swarm-item-5`) to prove independent row locks do not block each other.
+- **Zero Over-Selling Guarantee**: Exactly the allocated physical stock succeeds with HTTP `200 OK`; all remaining requests are cleanly rejected with HTTP `409 Conflict`.
+- **Two-Phase Settlement**: Automatically executes concurrent confirmations (`POST /api/v1/inventory/confirm`) and asserts that physical inventory decrements to 0.
+- **Replay Attack Protection**: Verifies duplicate confirmation requests are rejected with HTTP `400 Bad Request`.
+- **Persistent Audit Logging**: Thread-safely records individual request traces, latency distributions, and invariant checks to `test_log.txt` at the repository root.
+
+---
+
+### 3. Full Integration Test Suite
+Executes all database integration tests against a running PostgreSQL instance:
 
 ```bash
 cd core
@@ -410,18 +450,52 @@ TEST_DATABASE_URL="postgres://postgres:postgres@localhost:5433/indico_test_db?ss
 go test -race -v ./test/...
 ```
 
-*What the test proves*:
-- Spawns dozens of concurrent goroutines competing for limited inventory.
-- Asserts that total successful reservations never exceed initial stock.
-- Confirms remaining requests receive `ErrInsufficientStock` without race conditions or deadlocks.
+---
 
-### 3. Frontend Lint & Production Build
+### 4. External Multi-Item Stress Testing (k6, Docker, Python)
+A dedicated load-testing suite outside the Go codebase located in [`scripts/stress-test/`](scripts/stress-test/) evaluates sustained flash-sale throughput and latency under high concurrency.
+
+Ensure Core API is running (`docker compose up -d postgres core` or `go run cmd/api/main.go`), then run:
+
+#### A. Automated Orchestrator (Auto-detects k6 / Docker / Python)
+```bash
+# Default multi-item run (100 Virtual Users across 5 catalog items for 10s)
+./scripts/stress-test/run_stress_test.sh
+
+# Reset 5 catalog items to 50 units each and stress test with 100 VUs
+./scripts/stress-test/run_stress_test.sh --reset-stock --stock 50 --vus 100 --duration 10s
+
+# Stress test custom list of items
+./scripts/stress-test/run_stress_test.sh --items "flash-item-1,flash-item-2,iphone-15-pro,limited-edition-sneakers,playstation-5-pro"
+```
+
+#### B. Native k6
+```bash
+BASE_URL=http://localhost:8081 VUS=100 DURATION=10s k6 run scripts/stress-test/k6_stress_test.js
+```
+
+#### C. Dockerized k6 (No local k6 installation required)
+```bash
+./scripts/stress-test/run_stress_test.sh --tool docker-k6 --vus 100
+```
+
+#### D. Standalone Python 3 Runner (Zero external dependencies)
+```bash
+./scripts/stress-test/run_stress_test.sh --tool python --vus 50
+# Or run directly:
+python3 scripts/stress-test/stress_test.py --url http://localhost:8081 -c 100 -n 250
+```
+
+*Metrics captured*: Throughput (RPS), Min/Mean/$P_{50}$/$P_{90}$/$P_{95}$/$P_{99}$ latency, 409 conflict rate, and post-stress catalog inventory integrity audit ($\text{Total} == \text{Reserved} + \text{Available}$). See [`scripts/stress-test/README.md`](scripts/stress-test/README.md) for full documentation.
+
+---
+
+### 5. Frontend Quality Checks & Production Build
 ```bash
 cd web
 pnpm lint   # Oxlint static analysis
 pnpm build  # TypeScript type-check and Vite production bundle
 ```
-
 ---
 
 ## Configuration & Environment Variables
