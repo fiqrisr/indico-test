@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { AlertCircle, RefreshCw } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -10,8 +11,19 @@ interface InventoryTrackerProps {
 }
 
 export function InventoryTracker({ itemId }: InventoryTrackerProps) {
-  const { data, isLoading, isError, error, isFetching, refetch } =
+  const { data, isLoading, isError, error, refetch } =
     useInventoryStock(itemId, { pollingInterval: 2500 })
+
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    setIsManualRefreshing(true)
+    try {
+      await refetch()
+    } finally {
+      setIsManualRefreshing(false)
+    }
+  }
 
   if (isError) {
     return (
@@ -50,6 +62,7 @@ export function InventoryTracker({ itemId }: InventoryTrackerProps) {
     )
   }
 
+  const isInitialLoading = isLoading && !data
   const totalStock = data?.total_stock ?? 0
   const reservedStock = data?.reserved_stock ?? 0
   const availableStock = data?.available_stock ?? 0
@@ -82,26 +95,26 @@ export function InventoryTracker({ itemId }: InventoryTrackerProps) {
             <div className="flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 text-xs whitespace-nowrap shrink-0">
               <span
                 className={`h-2 w-2 rounded-full ${
-                  isFetching ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'
+                  isManualRefreshing ? 'bg-amber-500' : 'bg-emerald-500'
                 }`}
               />
               <span className="text-foreground text-[11px] font-medium">
-                {isFetching ? 'Updating' : 'Live'}
+                {isManualRefreshing ? 'Updating' : 'Live'}
               </span>
             </div>
 
             <Button
               variant="outline"
               size="icon"
-              onClick={() => refetch()}
-              disabled={isFetching}
+              onClick={handleRefresh}
+              disabled={isManualRefreshing}
               title="Refresh inventory"
               aria-label="Refresh inventory"
               className="h-8 w-8 rounded-lg cursor-pointer"
             >
               <RefreshCw
                 className={`h-3.5 w-3.5 text-muted-foreground ${
-                  isFetching ? 'animate-spin text-primary' : ''
+                  isManualRefreshing ? 'animate-spin text-primary' : ''
                 }`}
               />
             </Button>
@@ -117,17 +130,27 @@ export function InventoryTracker({ itemId }: InventoryTrackerProps) {
             <span className="text-xs font-semibold text-primary block">
               Available to Buy
             </span>
-            <div className="text-3xl font-extrabold tracking-tight text-primary font-mono tabular-nums">
-              {isLoading ? '...' : availableStock}
+            <div className="h-9 flex items-center text-3xl font-extrabold tracking-tight text-primary font-mono tabular-nums">
+              {isInitialLoading ? (
+                <div className="h-7 w-20 bg-primary/15 rounded-md animate-pulse" />
+              ) : (
+                availableStock
+              )}
             </div>
-            <div className="pt-1 flex items-center justify-between gap-2 text-xs">
-              <StockBadge
-                availableStock={availableStock}
-                totalStock={totalStock}
-              />
-              <span className="text-xs font-mono text-muted-foreground tabular-nums shrink-0">
-                {availablePercent}%
-              </span>
+            <div className="h-6 pt-1 flex items-center justify-between gap-2 text-xs">
+              {isInitialLoading ? (
+                <div className="h-5 w-20 bg-primary/15 rounded-full animate-pulse" />
+              ) : (
+                <>
+                  <StockBadge
+                    availableStock={availableStock}
+                    totalStock={totalStock}
+                  />
+                  <span className="text-xs font-mono text-muted-foreground tabular-nums shrink-0">
+                    {availablePercent}%
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
@@ -136,14 +159,24 @@ export function InventoryTracker({ itemId }: InventoryTrackerProps) {
             <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 block">
               Held in Checkout
             </span>
-            <div className="text-3xl font-extrabold tracking-tight text-amber-700 dark:text-amber-400 font-mono tabular-nums">
-              {isLoading ? '...' : reservedStock}
+            <div className="h-9 flex items-center text-3xl font-extrabold tracking-tight text-amber-700 dark:text-amber-400 font-mono tabular-nums">
+              {isInitialLoading ? (
+                <div className="h-7 w-16 bg-amber-500/15 rounded-md animate-pulse" />
+              ) : (
+                reservedStock
+              )}
             </div>
-            <div className="pt-1 flex items-center justify-between text-xs text-muted-foreground">
-              <span>Temporary holds</span>
-              <span className="font-mono tabular-nums">
-                {reservedPercent}%
-              </span>
+            <div className="h-6 pt-1 flex items-center justify-between text-xs text-muted-foreground">
+              {isInitialLoading ? (
+                <div className="h-4 w-24 bg-amber-500/10 rounded animate-pulse" />
+              ) : (
+                <>
+                  <span>Temporary holds</span>
+                  <span className="font-mono tabular-nums">
+                    {reservedPercent}%
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
@@ -152,11 +185,19 @@ export function InventoryTracker({ itemId }: InventoryTrackerProps) {
             <span className="text-xs font-semibold text-foreground block">
               Total Inventory
             </span>
-            <div className="text-3xl font-extrabold tracking-tight text-foreground font-mono tabular-nums">
-              {isLoading ? '...' : totalStock}
+            <div className="h-9 flex items-center text-3xl font-extrabold tracking-tight text-foreground font-mono tabular-nums">
+              {isInitialLoading ? (
+                <div className="h-7 w-20 bg-muted/60 rounded-md animate-pulse" />
+              ) : (
+                totalStock
+              )}
             </div>
-            <div className="pt-1 text-xs text-muted-foreground">
-              <span>Total catalog units</span>
+            <div className="h-6 pt-1 flex items-center text-xs text-muted-foreground">
+              {isInitialLoading ? (
+                <div className="h-4 w-28 bg-muted/60 rounded animate-pulse" />
+              ) : (
+                <span>Total catalog units</span>
+              )}
             </div>
           </div>
         </div>
@@ -165,35 +206,46 @@ export function InventoryTracker({ itemId }: InventoryTrackerProps) {
         <div className="space-y-2 rounded-xl bg-muted/30 border border-border/60 p-4">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-foreground">Stock Distribution</span>
-            <span className="font-mono text-muted-foreground tabular-nums text-[11px]">
-              {availableStock} available / {reservedStock} held
-            </span>
+            {isInitialLoading ? (
+              <div className="h-4 w-28 bg-muted/50 rounded animate-pulse" />
+            ) : (
+              <span className="font-mono text-muted-foreground tabular-nums text-[11px]">
+                {availableStock} available / {reservedStock} held
+              </span>
+            )}
           </div>
 
           {/* Segmented Bar */}
           <div className="w-full h-3 rounded-full overflow-hidden bg-muted flex border border-border/70 p-0.5">
-            <div
-              className="bg-primary rounded-l-full transition-all duration-300"
-              style={{ width: `${availablePercent}%` }}
-            />
-            <div
-              className="bg-amber-500 rounded-r-full transition-all duration-300"
-              style={{ width: `${reservedPercent}%` }}
-            />
+            {isInitialLoading ? (
+              <div className="w-full h-full bg-muted/50 rounded-full animate-pulse" />
+            ) : (
+              <>
+                <div
+                  className="bg-primary rounded-l-full transition-all duration-300"
+                  style={{ width: `${availablePercent}%` }}
+                />
+                <div
+                  className="bg-amber-500 rounded-r-full transition-all duration-300"
+                  style={{ width: `${reservedPercent}%` }}
+                />
+              </>
+            )}
           </div>
 
           <div className="flex items-center justify-between pt-1 text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-primary" />
-                <span>Available ({availablePercent}%)</span>
+                <span>Available ({isInitialLoading ? '—' : `${availablePercent}%`})</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-amber-500" />
-                <span>Held ({reservedPercent}%)</span>
+                <span>Held ({isInitialLoading ? '—' : `${reservedPercent}%`})</span>
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Simple Explanation Note */}
