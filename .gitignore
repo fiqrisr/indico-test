@@ -29,3 +29,6 @@ coverage.out
 node_modules/
 dist/
 .vite/
+
+test_log.txt
+stress_test_summary.json
